@@ -24,8 +24,7 @@ int main (int argc, char *argv[])
 		read_command_line(buf);
 
 		if(strcmp(buf,"exit")==0){
-			jobs_free_mem();
-			exit(0);
+			i++;
 		}
 
 		else
@@ -36,7 +35,7 @@ int main (int argc, char *argv[])
 			}
 			else
 			{
-				printf("Execution of external commands not implemented yet\n");
+				printf("\nExecution of external commands not implemented yet\n");
 			}
 		
 		}
