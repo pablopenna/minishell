@@ -17,9 +17,24 @@ void execute_external_command(const char *command)
 	{
 		return;
 	}
+	else
+	{
+		pid=fork();
+		switch(pid)
+		{
+			case 0: printf("\nsoy hijo\n");
+					args=parser_command(command,&backgr);
+					execvp(args[0],args);
+					perror("\nerror execvp\n");
+					break;
+
+			case -1: printf("fallo creando hijo");
+					break;
+		}
+		//parser_command(command,&backgr);
+
+	}
 
 
-
-	parser_free_args(**args)
-	return 0;
+	parser_free_args(args);
 }

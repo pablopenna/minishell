@@ -36,7 +36,7 @@ int main (int argc, char *argv[])
 			}
 			else
 			{
-				printf("Execution of external commands not implemented yet\n");
+				execute_external_command(buf);
 			}
 		
 		}
