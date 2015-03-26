@@ -12,6 +12,7 @@ void execute_external_command(const char *command)
 	char **args;
 	int backgr=0;
 	pid_t pid;
+	int status;
 
 	if ((args=parser_command(command,&backgr))==NULL)
 	{
@@ -20,21 +21,28 @@ void execute_external_command(const char *command)
 	else
 	{
 		pid=fork();
-		switch(pid)
-		{
-			case 0: printf("\nsoy hijo\n");
-					args=parser_command(command,&backgr);
-					execvp(args[0],args);
-					perror("\nerror execvp\n");
-					break;
-
-			case -1: printf("fallo creando hijo");
-					break;
+		
+		if(pid==0){
+			printf("\n------soy hijo-%d\n",backgr);
+			args=parser_command(command,&backgr);
+			execvp(args[0],args);
 		}
-		//parser_command(command,&backgr);
+		else{
+			if(pid==-1){
+				printf("fallo creando hijo");
+				exit(-1);
+			}
+			else{
+				printf("\n-----Soy padre-%d\n",backgr);
+				if(backgr==1){//proceso primer plano
+					waitpid(pid,&status,0);
+				}
+				else{//segundo plano
+					waitpid(pid,&status,WNOHANG);
+				}
+			}
 
+		}
 	}
-
-
 	parser_free_args(args);
 }

@@ -14,11 +14,16 @@
 #include "jobs.h"
 #include "minishell_input.h"
 
+void child_zombie_killer(int signal)
+{
+	wait(NULL);
+}
+
 int main (int argc, char *argv[])
 {
 	char buf[BUFSIZ];
-	int i=0;
-	while(i==0)
+	
+	while(1)
 	{
 		print_prompt();
 		read_command_line(buf);
@@ -37,6 +42,9 @@ int main (int argc, char *argv[])
 			else
 			{
 				execute_external_command(buf);
+				signal(SIGCHLD,child_zombie_killer);//cuando recibe la señal
+				//SIGCHLD ejecuta el metodo child_zombie_killer, descrito más
+				//arriba
 			}
 		
 		}
