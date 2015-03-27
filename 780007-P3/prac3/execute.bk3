@@ -8,21 +8,20 @@
 #include "jobs.h"
 
 
-void child_zombie_killer(int signal, siginfo_t *info, void *context)
+void child_zombie_killer()
 {
 	waitpid(-1,0,WNOHANG); //-1 para que espera por cualquier proceso hijo
-	jobs_finished(info->si_pid);
+	//job_finished(act.sa)
 }
 
 void execute_external_command(const char *command)
 {
-	//struct siginfo_t *info;
-//	struct ucontext_t *context;
-	
 	struct sigaction act;
-	act.sa_sigaction=&child_zombie_killer;//,info,NULL;
-	act.sa_flags=SA_SIGINFO;
+	act.sa_handler=child_zombie_killer;
+	act.sa_flags=0;
 	sigaction(SIGCHLD,&act,NULL);
+	
+	
 	
 	char **args;
 	int backgr=0;
@@ -40,11 +39,7 @@ void execute_external_command(const char *command)
 		if(pid==0){
 			printf("\n------soy hijo-%d\n",backgr);
 			args=parser_command(command,&backgr);
-			if(execvp(args[0],args)==0)//because if u type a non-valid command
-										//creates an additional shell
-				execvp(args[0],args);
-			else
-				exit(1);
+			execvp(args[0],args);
 		}
 		else{
 			if(pid==-1){
