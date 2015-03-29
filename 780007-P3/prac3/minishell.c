@@ -23,18 +23,19 @@ int main (int argc, char *argv[])
 		print_prompt();
 		read_command_line(buf);
 
-		if(strchr(buf,';')==NULL)//si no hay ';' en buf->orden simple
-		{						//strchr busca ; en buf devolviendo NULL si no  hay
+		if(strchr(buf,';')==NULL)/*if there is no ';' in the command, the
+		function strchr() returns NULL, so the command will be a simple one*/
+		{	
 			if(strcmp(buf,"exit")==0){
 				jobs_free_mem();
 				exit(0);
 			}
-
+		
 			else
 			{
 				if(is_internal_command(buf))//internal command
 				{
-					execute_internal_command(buf);//executed internal command
+					execute_internal_command(buf);//execute internal command
 				}
 				else
 				{
@@ -43,11 +44,12 @@ int main (int argc, char *argv[])
 			}
 		}
 			
-		else//si hay ';' en buf->orden compuesta
+		else/*if there is a ';' in the command line(variable buf)->complex
+		command line*/
 		{
 			
 			char * buf_split;
-			buf_split=strtok(buf,";");
+			buf_split=strtok(buf,";");/*split the command line with ';'*/
 			while(buf_split!=NULL)
 			{
 				if(strcmp(buf_split,"exit")==0){
@@ -57,13 +59,15 @@ int main (int argc, char *argv[])
 
 				else
 				{
-					if(is_internal_command(buf_split))//internal command
+					if(is_internal_command(buf_split))/*interal command*/
 					{
-						execute_internal_command(buf_split);//execute internal command
+						execute_internal_command(buf_split);/*execute internal
+						command*/
 					}
 					else
 					{
-						execute_external_command(buf_split);
+						execute_external_command(buf_split);/*execute external
+						command*/
 					}
 				}
 			buf_split=strtok(NULL,";");

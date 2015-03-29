@@ -10,24 +10,23 @@
 
 void child_zombie_killer(int signal, siginfo_t *info, void *context)
 {
-	waitpid(-1,0,WNOHANG); //-1 para que espera por cualquier proceso hijo
-	jobs_finished(info->si_pid);
+	waitpid(-1,0,WNOHANG); /*-1 so that it waits for any child*/
+	jobs_finished(info->si_pid);/*gets the pid of the child and registers it as
+	finished at jobs*/
 }
 
 void execute_external_command(const char *command)
 {
-	//struct siginfo_t *info;
-//	struct ucontext_t *context;
-	
-	struct sigaction act;
-	act.sa_sigaction=&child_zombie_killer;//,info,NULL;
-	act.sa_flags=SA_SIGINFO;
-	sigaction(SIGCHLD,&act,NULL);
+	struct sigaction act;/*declare sigaction struct for sigaction()*/
+	act.sa_sigaction=&child_zombie_killer;/*points function to execute when
+	SIGCHLD is received*/ 
+	act.sa_flags=SA_SIGINFO;/*so that we get info from the signal*/
+	sigaction(SIGCHLD,&act,NULL);/*what signal to receive and what to do.*/
 	
 	char **args;
 	int backgr=0;
 	pid_t pid;
-	int status;
+	int status;/*used by the system*/
 
 	if ((args=parser_command(command,&backgr))==NULL)
 	{
@@ -38,33 +37,39 @@ void execute_external_command(const char *command)
 		pid=fork();
 		
 		if(pid==0){
-			printf("\n------soy hijo-%d\n",backgr);
+			/* CHILD PROCESS	printf("\n------soy hijo-%d\n",backgr);*/
 			args=parser_command(command,&backgr);
-			if(execvp(args[0],args)==0)//because if u type a non-valid command
-										//creates an additional shell
+			if(execvp(args[0],args)==0)/* if it is not a valid command it doesnt
+			execute*/
+			{
 				execvp(args[0],args);
+			}
 			else
+			{
+				printf("\nInvalid Command\n");
 				exit(1);
+			}
+				
 		}
 		else{
 			if(pid==-1){
-				printf("fallo creando hijo");
+				printf("FAILURE creating a child");
 				exit(-1);
 			}
 			else{
-				printf("\n-----Soy padre-%d\n",backgr);
-				if(backgr==1){//proceso primer plano
-					jobs_new(pid,args[0]);//declaro el proceso en el procs padre
+				/* PARENT PROCESS		printf("\n-----Soy padre-%d\n",backgr);*/
+				if(backgr==1){/*foreground process*/
+					jobs_new(pid,args[0]);/*Declared new process in parent*/
 					waitpid(pid,&status,0);
 					jobs_finished(pid);
 				}
-				else{//segundo plano
-					jobs_new(pid,args[0]);//declaro el proceso en el padre
+				else{/*background process*/
+					jobs_new(pid,args[0]);/*new process declared in the parent*/
 					waitpid(pid,&status,WNOHANG);
 				}
 			}
 
 		}
 	}
-	parser_free_args(args);
+	parser_free_args(args);/*free memory*/
 }
